@@ -66,7 +66,7 @@ public class NettyServer {
                         log.info("netty服务启动成功 端口：" + nettyProperties.getPort());
                         //启动成功后将服务手动注册都nacos
                         NamingService service = NamingFactory.createNamingService(properties.getNacosProperties());
-                        service.registerInstance(nettyProperties.getServerName(),"dev",
+                        service.registerInstance(nettyProperties.getServerName(),properties.getGroup(),
                                 IpUtils.getLocalHostIp(), nettyProperties.getPort());
                     }
                 }
