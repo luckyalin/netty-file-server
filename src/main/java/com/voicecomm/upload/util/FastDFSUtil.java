@@ -3,6 +3,7 @@ package com.voicecomm.upload.util;
 import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.service.DefaultFastFileStorageClient;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
+import com.voicecomm.upload.config.FileProperties;
 import com.voicecomm.upload.config.NettyProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class FastDFSUtil {
     private FastFileStorageClient storageClient;
 
     @Autowired
-    private NettyProperties nettyProperties;
+    private FileProperties fileProperties;
 
     /**
      * fastdfs文件上传方法
@@ -36,6 +37,6 @@ public class FastDFSUtil {
         log.info("上传文件开始，文件名：" + fileName + "  文件大小：" + size);
         StorePath storePath = storageClient.uploadFile(inputStream, size, fileName, null);
         String fullPath = storePath.getFullPath();
-        return nettyProperties.getDomain() + "/" + fullPath;
+        return fileProperties.getDomain() + "/" + fullPath;
     }
 }

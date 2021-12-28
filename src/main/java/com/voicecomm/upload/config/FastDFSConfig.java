@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @ClassName FastDFSConfig
  * @Author yulin.li
  * @Date 2021/12/21 17:39
- * @Description FastDFSConfig
+ * @Description FastDFSConfig  fastdfs配置类
  */
 @ConfigurationProperties(prefix = "fdfs")
 @Component

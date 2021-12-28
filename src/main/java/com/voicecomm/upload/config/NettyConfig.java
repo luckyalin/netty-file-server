@@ -11,7 +11,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * @ClassName NettyConfig
  * @Author yulin.li
  * @Date 2021/12/22 13:58
- * @Description NettyConfig
+ * @Description NettyConfig netty配置类
  */
 @Configuration
 public class NettyConfig implements ApplicationListener<ContextRefreshedEvent> {

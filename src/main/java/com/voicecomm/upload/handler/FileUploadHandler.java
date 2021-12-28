@@ -15,24 +15,18 @@
  */
 package com.voicecomm.upload.handler;
 
-import com.voicecomm.upload.util.FastDFSUtil;
-import io.netty.buffer.ByteBuf;
+import com.voicecomm.upload.exception.FileUploadException;
+import com.voicecomm.upload.util.FileUtil;
+import com.voicecomm.upload.util.NettyUtil;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.*;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder.EndOfDataDecoderException;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
-import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import java.io.*;
-import java.util.Collections;
-import java.util.Set;
-import java.util.logging.Logger;
-import static io.netty.buffer.Unpooled.copiedBuffer;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 /**
  * @ClassName NettyProperties
@@ -44,153 +38,72 @@ import static io.netty.buffer.Unpooled.copiedBuffer;
 @Slf4j
 @Component
 public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
+    private FileUtil fileUtil;
 
-    private static final Logger logger = Logger.getLogger(FileUploadHandler.class.getName());
-
+    //当前请求的request对象
     private HttpRequest request;
 
-    private HttpData partialContent;
+    //当前请求的解码器对象
+    private HttpPostRequestDecoder decoder = null;
 
-    private final StringBuilder responseContent = new StringBuilder();
+    //当前请求开始时间
+    private Date beginTime = null;
 
-    private static final HttpDataFactory factory =
-            new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE); // Disk if size exceed
+    private HttpDataFactory factory = new DefaultHttpDataFactory(true);
 
-    private HttpPostRequestDecoder decoder;
-
-    private FastDFSUtil fdfsUtil;
-
-    public FileUploadHandler(FastDFSUtil fastDFSUtil) {
-        this.fdfsUtil = fastDFSUtil;
-    }
-
-    static {
-        DiskFileUpload.deleteOnExitTemporaryFile = true; // should delete file
-        DiskAttribute.deleteOnExitTemporaryFile = true; // should delete file on
+    public FileUploadHandler(FileUtil fastDFSUtil) {
+        this.fileUtil = fastDFSUtil;
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (decoder != null) {
-            decoder.cleanFiles();
+    @Transactional(rollbackFor = Exception.class)
+    public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
+        if(beginTime == null) {
+            this.beginTime = new Date();
         }
-    }
-
-    @Override
-    public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
+        StringBuilder responseContent = new StringBuilder();
         try {
             if (msg instanceof HttpRequest) {
-                request = (HttpRequest) msg;
-                if (request.uri().contains("upload") && request.method().equals(HttpMethod.POST)) {
-                    this.decoder = new HttpPostRequestDecoder(factory, request);
-                    this.decoder.setDiscardThreshold(0);
-                } else {
-                    //传递给下一个Handler
-                    ctx.fireChannelRead(msg);
+                request = (HttpRequest)msg;
+                //windows系统下的文件下载接口
+                if(request.uri().startsWith("/voicecomm") && request.method().equals(HttpMethod.GET)) {
+                    String voicecomm = fileUtil.getFileProperties().getPath().replace("\\", "/");
+                    voicecomm = StringUtils.substringBefore(voicecomm, "/");
+                    NettyUtil.responseExportFile(ctx, voicecomm + request.uri());
+
+                //linux window系统文件上传接口  可同时上传多个  参数名file
+                }else if(request.uri().startsWith("/upload") && request.method().equals(HttpMethod.POST)) {
+                    decoder = new HttpPostRequestDecoder(factory, request);
+                    decoder.setDiscardThreshold(0);
+
+                //根据文件id集合查询文件信息
+                }else if(request.uri().startsWith("/getFileInfoByIds") && request.method().equals(HttpMethod.GET)) {
+                    String fileInfoStr = NettyUtil.getFileInfoByIds(fileUtil, request);
+                    responseContent.append(fileInfoStr);
+                    NettyUtil.writeResponse(ctx.channel(),request, responseContent, HttpResponseStatus.OK,true);
+
+                //其他请求路径返回错误
+                }else {
+                    throw new FileUploadException("请求地址有误");
                 }
-            }
-            if (msg instanceof HttpContent) {
-                // 收到请求块
+
+            } else if(msg instanceof HttpContent && decoder != null) {
                 HttpContent chunk = (HttpContent) msg;
-                this.decoder.offer(chunk);
-                // 处理请求块
-                readHttpDataChunkByChunk();
-
-                // 如果请求块处理完成则相应请求
+                decoder.offer(chunk);
                 if (chunk instanceof LastHttpContent) {
-                    writeResponse(ctx.channel());
-                    reset();
+                    //如果文件接收完成则开始走上传业务
+                    String uploadInfoStr = NettyUtil.upload(fileUtil, decoder, beginTime);
+                    responseContent.append(uploadInfoStr);
+                    NettyUtil.writeResponse(ctx.channel(),request, responseContent, HttpResponseStatus.OK,true);
+                    this.reset();
                 }
             }
+
         } catch (Exception e) {
-            log.error("文件上传发生异常：" + e);
-            responseContent.append("上传异常");
-            writeResponse(ctx.channel(), true);
-            return;
-        }
-    }
-
-    private void reset() {
-        request = null;
-        // destroy the decoder to release all resources
-        decoder.destroy();
-        decoder = null;
-    }
-
-    /**
-     * Example of reading request by chunk and getting values from chunk to chunk
-     */
-    private void readHttpDataChunkByChunk() throws EndOfDataDecoderException,IOException {
-        while (decoder.hasNext()) {
-            InterfaceHttpData data = decoder.next();
-            if (data != null) {
-                // check if current HttpData is a FileUpload and previously set as partial
-                if (partialContent == data) {
-                    logger.info(" 100% (FinalSize: " + partialContent.length() + ")");
-                    partialContent = null;
-                }
-                // 请求块全部接收完成后进行保存
-                writeHttpData(data);
-            }
-        }
-    }
-
-    private void writeHttpData(InterfaceHttpData data) throws IOException {
-        if (data.getHttpDataType() == HttpDataType.FileUpload) {
-            FileUpload fileUpload = (FileUpload) data;
-            // 如果文件已收取完成，则写入到fastdfs
-            if (fileUpload.isCompleted()) {
-                byte[] bytes = fileUpload.get();
-                InputStream inputStream = new ByteArrayInputStream(bytes);
-                String fileUrl = fdfsUtil.upload(inputStream, fileUpload.length(), fileUpload.getFilename());
-                decoder.removeHttpDataFromClean(fileUpload); //remove
-                responseContent.append(fileUrl);
-            }
-        }
-    }
-
-    private void writeResponse(Channel channel) {
-        writeResponse(channel, false);
-    }
-
-    private void writeResponse(Channel channel, boolean forceClose) {
-        // Convert the response content to a ChannelBuffer.
-        ByteBuf buf = copiedBuffer(responseContent.toString(), CharsetUtil.UTF_8);
-        responseContent.setLength(0);
-
-        // Decide whether to close the connection or not.
-        boolean keepAlive = HttpUtil.isKeepAlive(request) && !forceClose;
-
-        // Build the response object.
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
-        response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
-
-        if (!keepAlive) {
-            response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
-        } else if (request.protocolVersion().equals(HttpVersion.HTTP_1_0)) {
-            response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        }
-
-        Set<Cookie> cookies;
-        String value = request.headers().get(HttpHeaderNames.COOKIE);
-        if (value == null) {
-            cookies = Collections.emptySet();
-        } else {
-            cookies = ServerCookieDecoder.STRICT.decode(value);
-        }
-        if (!cookies.isEmpty()) {
-            // Reset the cookies if necessary.
-            for (Cookie cookie : cookies) {
-                response.headers().add(HttpHeaderNames.SET_COOKIE, ServerCookieEncoder.STRICT.encode(cookie));
-            }
-        }
-        // Write the response.
-        ChannelFuture future = channel.writeAndFlush(response);
-        // Close the connection after the write operation is done if necessary.
-        if (!keepAlive) {
-            future.addListener(ChannelFutureListener.CLOSE);
+            e.printStackTrace();
+            log.error("请求异常：" + e.getMessage() + "  接口地址：" + this.request != null ? request.uri() : "");
+            responseContent.append("请求异常");
+            NettyUtil.writeResponse(ctx.channel(),request, responseContent,HttpResponseStatus.INTERNAL_SERVER_ERROR, true);
         }
     }
 
@@ -199,4 +112,12 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
         log.error("netty服务异常：" + cause.getMessage());
         ctx.channel().close();
     }
+
+    public void reset() {
+        this.beginTime = null;
+        this.decoder.destroy();
+        this.decoder = null;
+        this.request = null;
+    }
+
 }

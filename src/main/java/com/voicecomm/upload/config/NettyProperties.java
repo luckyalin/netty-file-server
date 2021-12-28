@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * @ClassName NettyProperties
  * @Author yulin.li
  * @Date 2021/12/21 16:38
- * @Description NettyProperties
+ * @Description NettyProperties  netty配置对象
  */
 @ConfigurationProperties(prefix = "netty.server")
 @Component
@@ -20,6 +20,4 @@ public class NettyProperties {
     // netty服务注册名称
     private String serverName;
 
-    //netty服务域名地址
-    private String domain;
 }

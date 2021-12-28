@@ -1,12 +1,12 @@
 package com.voicecomm.upload.server;
 
-import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
-import com.alibaba.cloud.nacos.NacosServiceManager;
-import com.alibaba.nacos.api.naming.NamingFactory;
-import com.alibaba.nacos.api.naming.NamingService;
+//import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
+//import com.alibaba.cloud.nacos.NacosServiceManager;
+//import com.alibaba.nacos.api.naming.NamingFactory;
+//import com.alibaba.nacos.api.naming.NamingService;
 import com.voicecomm.upload.config.NettyProperties;
 import com.voicecomm.upload.handler.ChannelInitializerHandler;
-import com.voicecomm.upload.util.FastDFSUtil;
+import com.voicecomm.upload.util.FileUtil;
 import com.voicecomm.upload.util.IpUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -34,7 +34,7 @@ public class NettyServer {
     private NettyProperties nettyProperties;
 
     @Autowired
-    private FastDFSUtil fdfsUtil;
+    private FileUtil fdfsUtil;
 
     private NioEventLoopGroup bossGroup;
 
@@ -42,9 +42,9 @@ public class NettyServer {
 
     private ServerBootstrap serverBootstrap;
 
-    private NacosServiceManager nacosServiceManager;
-
-    private final NacosDiscoveryProperties properties;
+//    private NacosServiceManager nacosServiceManager;
+//
+//    private final NacosDiscoveryProperties properties;
 
     public void run () {
         try {
@@ -65,9 +65,9 @@ public class NettyServer {
                     if(future.isSuccess()) {
                         log.info("netty服务启动成功 端口：" + nettyProperties.getPort());
                         //启动成功后将服务手动注册都nacos
-                        NamingService service = NamingFactory.createNamingService(properties.getNacosProperties());
-                        service.registerInstance(nettyProperties.getServerName(),properties.getGroup(),
-                                IpUtils.getLocalHostIp(), nettyProperties.getPort());
+//                        NamingService service = NamingFactory.createNamingService(properties.getNacosProperties());
+//                        service.registerInstance(nettyProperties.getServerName(),properties.getGroup(),
+//                                IpUtils.getLocalHostIp(), nettyProperties.getPort());
                     }
                 }
             });

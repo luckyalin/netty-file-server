@@ -1,8 +1,6 @@
-netty:
-  server:
-    port: 9010
-    serverName: call-center-netty-file
-
+jasypt:
+  encryptor:
+    password: voicecomm
 
 spring:
   profiles:
