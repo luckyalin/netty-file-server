@@ -104,6 +104,8 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
             log.error("请求异常：" + e.getMessage() + "  接口地址：" + this.request != null ? request.uri() : "");
             responseContent.append(e.getMessage());
             NettyUtil.writeResponse(ctx.channel(),request, responseContent,HttpResponseStatus.INTERNAL_SERVER_ERROR, true);
+            //发生异常销毁decoder 防止内存溢出
+            this.reset();
         }
     }
 
