@@ -56,7 +56,6 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
         if(beginTime == null) {
             this.beginTime = new Date();
@@ -81,6 +80,7 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
                     String fileInfoStr = NettyUtil.getFileInfoByIds(fileUtil, request);
                     responseContent.append(fileInfoStr);
                     NettyUtil.writeResponse(ctx.channel(),request, responseContent, HttpResponseStatus.OK,true);
+                    this.reset();
 
                 //其他请求路径返回错误
                 }else {
@@ -102,7 +102,7 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
         } catch (Exception e) {
             e.printStackTrace();
             log.error("请求异常：" + e.getMessage() + "  接口地址：" + this.request != null ? request.uri() : "");
-            responseContent.append("请求异常");
+            responseContent.append(e.getMessage());
             NettyUtil.writeResponse(ctx.channel(),request, responseContent,HttpResponseStatus.INTERNAL_SERVER_ERROR, true);
         }
     }
@@ -110,6 +110,7 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         log.error("netty服务异常：" + cause.getMessage());
+        this.reset();
         ctx.channel().close();
     }
 
@@ -117,7 +118,6 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
         this.beginTime = null;
         this.decoder.destroy();
         this.decoder = null;
-        this.request = null;
     }
 
 }

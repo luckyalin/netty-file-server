@@ -275,7 +275,7 @@ public class NettyUtil {
      */
     public static SysFileUpload convertFromFileUpload(FileUpload fileUpload, String uploadType, Date beginTime) {
         SysFileUpload sysFileUpload = new SysFileUpload();
-        sysFileUpload.setFileId(UUID.randomUUID().toString());
+        sysFileUpload.setFileId(UUID.randomUUID().toString(true));
         sysFileUpload.setFileName(fileUpload.getFilename());
         sysFileUpload.setFileSize(Integer.parseInt(String.valueOf(fileUpload.length())));
         sysFileUpload.setExtension(StringUtils.substringAfterLast(fileUpload.getFilename(), "."));

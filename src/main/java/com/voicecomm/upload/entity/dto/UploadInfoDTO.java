@@ -23,5 +23,5 @@ public class UploadInfoDTO implements Serializable {
 
     private Long totalTime;  //总耗时
 
-    List<FileInfoDTO> fileInfos;
+    List<FileInfoDTO> fileInfos; //文件上传信息集合
 }
