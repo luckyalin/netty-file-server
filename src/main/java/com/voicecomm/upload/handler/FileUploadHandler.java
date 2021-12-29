@@ -107,10 +107,11 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     public void reset() {
         this.beginTime = null;
-        if(decoder != null) {
+        if(this.decoder != null) {
             this.decoder.destroy();
         }
         this.decoder = null;
+        this.request = null;
     }
 
 }
