@@ -43,7 +43,7 @@ spring:
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/voice-video-cs?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: ENC(r8Po9HASz4sJX9t9chzgsQ==)
+    password: ENC(3b9m9BirIu65pt/Rs+ZlSQ==)
     # 初始连接数
     initial-size: 5
     # 最小连接数

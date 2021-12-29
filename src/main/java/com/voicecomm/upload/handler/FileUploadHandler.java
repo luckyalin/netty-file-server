@@ -1,18 +1,3 @@
-/*
- * Copyright 2012 The Netty Project
- *
- * The Netty Project licenses this file to you under the Apache License,
- * version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at:
- *
- *   https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- */
 package com.voicecomm.upload.handler;
 
 import com.voicecomm.upload.exception.FileUploadException;
@@ -24,8 +9,6 @@ import io.netty.handler.codec.http.multipart.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Date;
 
 /**
@@ -99,10 +82,16 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
                 }
             }
 
+        } catch (FileUploadException e) {
+            log.error("业务异常：" + e.getMessage() + "  接口地址：" + (this.request != null ? request.uri() : ""));
+            responseContent.append(e.getMessage());
+            NettyUtil.writeResponse(ctx.channel(),request, responseContent,HttpResponseStatus.INTERNAL_SERVER_ERROR, true);
+            //发生异常销毁decoder 防止内存溢出
+            this.reset();
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("请求异常：" + e.getMessage() + "  接口地址：" + this.request != null ? request.uri() : "");
-            responseContent.append(e.getMessage());
+            log.error("请求异常：" + e.getMessage() + "  接口地址：" + (this.request != null ? request.uri() : ""));
+            responseContent.append("系统异常");
             NettyUtil.writeResponse(ctx.channel(),request, responseContent,HttpResponseStatus.INTERNAL_SERVER_ERROR, true);
             //发生异常销毁decoder 防止内存溢出
             this.reset();
@@ -118,7 +107,9 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     public void reset() {
         this.beginTime = null;
-        this.decoder.destroy();
+        if(decoder != null) {
+            this.decoder.destroy();
+        }
         this.decoder = null;
     }
 
