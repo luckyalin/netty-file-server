@@ -48,7 +48,7 @@ public class NettyUtil {
     public static String upload(FileUtil fileUtil, HttpPostRequestDecoder decoder, Date beginTime) throws IOException{
         Date endTime = null;
         //解析所有上传文件，封装成一个对象
-        NettyRequestDTO multipartBody = getMultipartBody(decoder);
+        NettyRequestDTO multipartBody = getMultipartBody(decoder, fileUtil);
         if (multipartBody != null && CollectionUtil.isEmpty(multipartBody.getFileUploads())) {
             throw new FileUploadException("上传文件为空");
         }
@@ -107,6 +107,7 @@ public class NettyUtil {
         //获取请求参数
         Map<String, Object> params = readGetParams(request);
         String ids = (String) params.get("ids");
+        log.info("获取文件信息请求参数：" + ids);
         List<String> idList = JSON.parseArray(ids, String.class);
         //根据id集合查询文件信息
         List<SysFileUpload> byFileIdIn = fileUtil.getFileUploadRepository().findByFileIdIn(idList);
@@ -136,7 +137,7 @@ public class NettyUtil {
      * @param decoder  解码器对象
      * @return
      */
-    public static NettyRequestDTO getMultipartBody(HttpPostRequestDecoder decoder) throws IOException {
+    public static NettyRequestDTO getMultipartBody(HttpPostRequestDecoder decoder, FileUtil fileUtil) throws IOException {
         NettyRequestDTO multipartRequest = new NettyRequestDTO();
         //存放文件对象
         List<FileUpload> fileUploads = new ArrayList<>();
@@ -146,6 +147,7 @@ public class NettyUtil {
             //如果数据类型为文件类型，则保存到fileUploads对象中 如果参数名不对则抛出异常
             if (data != null && InterfaceHttpData.HttpDataType.FileUpload.equals(data.getHttpDataType()) && data.getName().equals(FILE_PARAM_NAME)) {
                 FileUpload fileUpload = (FileUpload) data;
+                fileUtil.checkSize(fileUpload.getFilename(), fileUpload.length());
                 fileUploads.add(fileUpload);
             }else {
                 throw new FileUploadException("文件上传参数错误");

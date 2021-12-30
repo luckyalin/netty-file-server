@@ -177,10 +177,10 @@ public class FileUtil {
      * 检查文件大小
      * @param size 上传文件大小
      */
-    public void checkSize(long size) {
+    public void checkSize(String fileName, long size) {
         Integer maxSize = fileProperties.getFileMaxSize() * FileSizeConstant.MB;
         if (size > maxSize) {
-            throw new FileUploadException("文件大小超出限制： " + fileProperties.getFileMaxSize() + "M");
+            throw new FileUploadException("文件大小超出限制： " + fileProperties.getFileMaxSize() + "M   文件名：" + fileName);
         }
     }
 

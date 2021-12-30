@@ -53,9 +53,11 @@ public class NettyServer {
             serverBootstrap = new ServerBootstrap();
             serverBootstrap
                     .group(bossGroup, workGroup)
-                    .channel(NioServerSocketChannel.class) //使用NioSocketChannel 作为服务器的通道实现
+                    //使用NioSocketChannel 作为服务器的通道实现
+                    .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new ChannelInitializerHandler(fdfsUtil)); // 给我们的workerGroup 的 EventLoop 对应的管道设置处理器
+                    // 给workerGroup 的 EventLoop 对应的管道设置处理器
+                    .childHandler(new ChannelInitializerHandler(fdfsUtil));
             ChannelFuture channelFuture = serverBootstrap.bind(nettyProperties.getPort()).sync();
 
             //监听netty服务启动成功
