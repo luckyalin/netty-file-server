@@ -14,6 +14,13 @@ import java.util.List;
  */
 @Data
 public class NettyRequestDTO implements Serializable {
-    private List<FileUpload> fileUploads;  //接收到的上传文件集合
-    private JSONObject params;  //接收到的参数对象
+    /**
+     * 接收到的上传文件集合
+     */
+    private List<FileUpload> fileUploads;
+
+    /**
+     * 接收到的参数对象
+     */
+    private JSONObject params;
 }

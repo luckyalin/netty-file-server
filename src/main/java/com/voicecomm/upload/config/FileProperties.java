@@ -15,15 +15,29 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "file")
 @Data
 public class FileProperties {
-    private String linuxPath;  //linux系统文件保存路径
+    /**
+     * linux系统文件保存路径
+     */
+    private String linuxPath;
 
-    private String windowsPath;  //windows系统文件保存路径
+    /**
+     * windows系统文件保存路径
+     */
+    private String windowsPath;
 
-    private Integer fileMaxSize;  //文件上传大小限制
+    /**
+     * 文件上传大小限制
+     */
+    private Integer fileMaxSize;
 
-    private String fileUploadType; //文件上传方式
+    /**
+     * //文件上传方式
+     */
+    private String fileUploadType;
 
-    //netty服务域名地址
+    /**
+     * netty服务域名地址
+     */
     private String domain;
 
     public String getPath() {

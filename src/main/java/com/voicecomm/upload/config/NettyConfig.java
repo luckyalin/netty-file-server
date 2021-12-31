@@ -15,8 +15,11 @@ import org.springframework.context.event.ContextRefreshedEvent;
  */
 @Configuration
 public class NettyConfig implements ApplicationListener<ContextRefreshedEvent> {
-    @Autowired
-    private ApplicationContext context;
+    private final ApplicationContext context;
+
+    public NettyConfig(ApplicationContext context) {
+        this.context = context;
+    }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {

@@ -1,13 +1,8 @@
 package com.voicecomm.upload.server;
 
-//import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
-//import com.alibaba.cloud.nacos.NacosServiceManager;
-//import com.alibaba.nacos.api.naming.NamingFactory;
-//import com.alibaba.nacos.api.naming.NamingService;
 import com.voicecomm.upload.config.NettyProperties;
 import com.voicecomm.upload.handler.ChannelInitializerHandler;
 import com.voicecomm.upload.util.FileUtil;
-import com.voicecomm.upload.util.IpUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -17,7 +12,6 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,11 +24,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class NettyServer {
-    @Autowired
-    private NettyProperties nettyProperties;
+    private final NettyProperties nettyProperties;
 
-    @Autowired
-    private FileUtil fdfsUtil;
+    private final FileUtil fdfsUtil;
 
     private NioEventLoopGroup bossGroup;
 
@@ -43,8 +35,12 @@ public class NettyServer {
     private ServerBootstrap serverBootstrap;
 
 //    private NacosServiceManager nacosServiceManager;
-//
-//    private final NacosDiscoveryProperties properties;
+//    private NacosDiscoveryProperties properties;
+
+    public NettyServer(NettyProperties nettyProperties, FileUtil fdfsUtil) {
+        this.nettyProperties = nettyProperties;
+        this.fdfsUtil = fdfsUtil;
+    }
 
     public void run () {
         try {

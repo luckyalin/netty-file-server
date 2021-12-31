@@ -15,25 +15,55 @@ import java.util.Date;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FileInfoDTO implements Serializable {
-    private String fileId;  //文件id
+    /**
+     * 文件id
+     */
+    private String fileId;
 
-    private String fileName; //文件名称
+    /**
+     * 文件名称
+     */
+    private String fileName;
 
-    private String fileSize; //文件大小
+    /**
+     * 文件大小
+     */
+    private String fileSize;
 
-    private String extension; //文件扩展名
+    /**
+     * 文件扩展名
+     */
+    private String extension;
 
-    private String downloadUrl;  //下载地址
+    /**
+     * 下载地址
+     */
+    private String downloadUrl;
 
-    private Integer status;  //上传状态
+    /**
+     * 上传状态
+     */
+    private Integer status;
 
-    private String beginTime; //上传开始时间
+    /**
+     * 上传开始时间
+     */
+    private String beginTime;
 
-    private String endTime;  //上传结束时间
+    /**
+     * 上传结束时间
+     */
+    private String endTime;
 
-    private Long totalTime;  //上传总耗时
+    /**
+     * 上传总耗时
+     */
+    private Long totalTime;
 
-    private String createBy; //上传人
+    /**
+     * 上传人
+     */
+    private String createBy;
 
     public String getFileSize() {
         return fileSize;

@@ -2,8 +2,10 @@
 package com.voicecomm.upload.constants;
 
 /**
- * 常用静态常量
- *
+ * @ClassName FastDFSUtil
+ * @Author yulin.li
+ * @Date 2021/12/21 17:19
+ * @Description ElAdminConstant
  */
 public class ElAdminConstant {
 

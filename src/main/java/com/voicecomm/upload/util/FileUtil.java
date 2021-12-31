@@ -18,10 +18,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * @ClassName FastDFSUtil
+ * @ClassName FileUtil
  * @Author yulin.li
  * @Date 2021/12/21 17:19
- * @Description FastDFSUtil
+ * @Description FileUtil
  * 文件操作工具类 包含：
  * 1.文件上传到fastdfs
  * 2.文件上传到windows
@@ -37,14 +37,22 @@ public class FileUtil {
      */
     private static final DecimalFormat DF = new DecimalFormat("0.00");
 
-    @Autowired
-    private FastFileStorageClient storageClient;
+    private final FastFileStorageClient storageClient;
 
-    @Autowired
     private FileProperties fileProperties;
 
-    @Autowired
     private FileUploadRepository fileUploadRepository;
+
+    public FileUtil(FastFileStorageClient storageClient) {
+        this.storageClient = storageClient;
+    }
+
+    @Autowired
+    public FileUtil(FastFileStorageClient storageClient, FileProperties fileProperties, FileUploadRepository fileUploadRepository) {
+        this.storageClient = storageClient;
+        this.fileProperties = fileProperties;
+        this.fileUploadRepository = fileUploadRepository;
+    }
 
     /**
      * 文件上传统一入口
@@ -120,8 +128,12 @@ public class FileUtil {
             log.info("fdfs文件上传成功！文件名：" + fileName + "  返回地址：" + returnPath);
             return fileProperties.getDomain() + returnPath;
         } finally {
-            fileInputStream.close();
-            outputStream.close();
+            if(fileInputStream != null) {
+                fileInputStream.close();
+            }
+            if(outputStream != null) {
+                outputStream.close();
+            }
         }
     }
 
@@ -178,7 +190,7 @@ public class FileUtil {
      * @param size 上传文件大小
      */
     public void checkSize(String fileName, long size) {
-        Integer maxSize = fileProperties.getFileMaxSize() * FileSizeConstant.MB;
+        int maxSize = fileProperties.getFileMaxSize() * FileSizeConstant.MB;
         if (size > maxSize) {
             throw new FileUploadException("文件大小超出限制： " + fileProperties.getFileMaxSize() + "M   文件名：" + fileName);
         }
@@ -187,7 +199,7 @@ public class FileUtil {
     /**
      * 通过文件保存路径转换为返回路径
      * @param fileSavePath
-     * @return
+     * @return String
      */
     public String getReturnPath(String fileSavePath) {
         String separator = "/|\\\\";

@@ -19,33 +19,76 @@ import java.util.Date;
 @Entity
 @Table(name = "sys_file_upload")
 public class SysFileUpload implements Serializable {
+
+    /**
+     * 文件id
+     */
     @Id
-    private String fileId;  //文件id
+    private String fileId;
 
-    private String fileName; //文件名称
+    /**
+     * 文件名称
+     */
+    private String fileName;
 
-    private Integer fileSize; //文件大小
+    /**
+     * 文件大小
+     */
+    private Integer fileSize;
 
-    private String downloadUrl; //文件下载地址
+    /**
+     * 文件下载地址
+     */
+    private String downloadUrl;
 
-    private String file_path;  //文件路径
+    /**
+     * 文件路径
+     */
+    private String filePath;
 
-    private String extension;  //文件后缀名
+    /**
+     * 文件后缀名
+     */
+    private String extension;
 
-    private Integer status;  //上传状态 0上传中 1上传成功 2上传失败
+    /**
+     * 上传状态 0上传中 1上传成功 2上传失败
+     */
+    private Integer status;
 
-    private Date beginTime;  //开始时间
+    /**
+     * 开始时间
+     */
+    private Date beginTime;
 
-    private Date endTime; //结束时间
+    /**
+     * 结束时间
+     */
+    private Date endTime;
 
-    private Long totalTime;  //总耗时
+    /**
+     * 总耗时
+     */
+    private Long totalTime;
 
-    private Date createTime; //创建时间
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 
-    private String createBy;  //创建人
+    /**
+     * 创建人
+     */
+    private String createBy;
 
-    private String uploadType; //上传类型 0 linux 1 windows
+    /**
+     * 上传类型 0 linux 1 windows
+     */
+    private String uploadType;
 
+    /**
+     * 当前对象对应的文件上传对象
+     */
     @Transient
-    private FileUpload fileUpload;  //当前对象对应的文件上传对象
+    private FileUpload fileUpload;
 }

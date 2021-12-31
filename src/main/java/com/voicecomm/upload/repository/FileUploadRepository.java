@@ -12,5 +12,10 @@ import java.util.List;
  * @Description FileUploadRepository
  */
 public interface FileUploadRepository extends JpaRepository<SysFileUpload, String> {
+    /**
+     * 通过文件id集合查询文件信息
+     * @param ids
+     * @return
+     */
     List<SysFileUpload> findByFileIdIn(List<String> ids);
 }

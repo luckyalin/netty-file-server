@@ -15,13 +15,25 @@ import java.util.List;
  */
 @Data
 public class UploadInfoDTO implements Serializable {
+    /**
+     * 上传开始时间
+     */
     @JSONField(format = "yyyy-MM-dd HH:mm:ss:SSS")
-    private Date beginTime; //上传开始时间
+    private Date beginTime;
 
+    /**
+     * 上传结束时间
+     */
     @JSONField(format = "yyyy-MM-dd HH:mm:ss:SSS")
-    private Date endTime;  //上传结束时间
+    private Date endTime;
 
-    private Long totalTime;  //总耗时
+    /**
+     * 总耗时
+     */
+    private Long totalTime;
 
-    List<FileInfoDTO> fileInfos; //文件上传信息集合
+    /**
+     * 文件上传信息集合
+     */
+    List<FileInfoDTO> fileInfos;
 }

@@ -7,6 +7,12 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 
+/**
+ * @ClassName FastDFSUtil
+ * @Author yulin.li
+ * @Date 2021/12/21 17:19
+ * @Description IpUtils 获取ip地址工具类
+ */
 public class IpUtils {
 
 	public static String localHostIp = null;

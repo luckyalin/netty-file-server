@@ -10,7 +10,10 @@ import lombok.Data;
  */
 @Data
 public class FileUploadException extends RuntimeException{
-    private String errorMsg;  //异常信息
+    /**
+     * 异常信息
+     */
+    private String errorMsg;
 
     public FileUploadException(String errorMsg) {
         super(errorMsg);

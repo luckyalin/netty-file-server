@@ -21,21 +21,33 @@ import java.util.Date;
 @Slf4j
 @Component
 public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
+    private static final String DOWNLOAD_URL = "/voicecomm";
+
+    private static final String UPLOAD_URL = "/upload";
+
+    private static final String GET_FILE_INFO_URL = "/getFileInfoByIds";
+
     private FileUtil fileUtil;
 
-    //当前请求的request对象
-    private HttpRequest request;
+    /**
+     * 当前请求的request对象
+     */
+    private HttpRequest request = null;
 
-    //当前请求的解码器对象
+    /**
+     * 当前请求的解码器对象
+     */
     private HttpPostRequestDecoder decoder = null;
 
-    //当前请求开始时间
+    /**
+     * 当前请求开始时间
+     */
     private Date beginTime = null;
 
     private HttpDataFactory factory = new DefaultHttpDataFactory(true);
 
-    public FileUploadHandler(FileUtil fastDFSUtil) {
-        this.fileUtil = fastDFSUtil;
+    public FileUploadHandler(FileUtil fastDfsUtil) {
+        this.fileUtil = fastDfsUtil;
     }
 
     @Override
@@ -48,18 +60,18 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
             if (msg instanceof HttpRequest) {
                 request = (HttpRequest)msg;
                 //windows系统下的文件下载接口
-                if(request.uri().startsWith("/voicecomm") && request.method().equals(HttpMethod.GET)) {
+                if(request.uri().startsWith(DOWNLOAD_URL) && request.method().equals(HttpMethod.GET)) {
                     String voicecomm = fileUtil.getFileProperties().getPath().replace("\\", "/");
                     voicecomm = StringUtils.substringBefore(voicecomm, "/");
                     NettyUtil.responseExportFile(ctx, voicecomm + request.uri());
 
                 //linux window系统文件上传接口  可同时上传多个  参数名file
-                }else if(request.uri().startsWith("/upload") && request.method().equals(HttpMethod.POST)) {
+                }else if(request.uri().startsWith(UPLOAD_URL) && request.method().equals(HttpMethod.POST)) {
                     decoder = new HttpPostRequestDecoder(factory, request);
                     decoder.setDiscardThreshold(0);
 
                 //根据文件id集合查询文件信息
-                }else if(request.uri().startsWith("/getFileInfoByIds") && request.method().equals(HttpMethod.GET)) {
+                }else if(request.uri().startsWith(GET_FILE_INFO_URL) && request.method().equals(HttpMethod.GET)) {
                     String fileInfoStr = NettyUtil.getFileInfoByIds(fileUtil, request);
                     responseContent.append(fileInfoStr);
                     NettyUtil.writeResponse(ctx.channel(),request, responseContent, HttpResponseStatus.OK,true);

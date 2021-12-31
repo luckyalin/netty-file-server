@@ -111,8 +111,8 @@ public class NettyUtil {
         List<String> idList = JSON.parseArray(ids, String.class);
         //根据id集合查询文件信息
         List<SysFileUpload> byFileIdIn = fileUtil.getFileUploadRepository().findByFileIdIn(idList);
-        List<FileInfoDTO> fileInfoDTOS = BeanUtil.copyList(byFileIdIn, FileInfoDTO.class, true);
-        return JSON.toJSONString(fileInfoDTOS);
+        List<FileInfoDTO> fileInfoDtoS = BeanUtil.copyList(byFileIdIn, FileInfoDTO.class, true);
+        return JSON.toJSONString(fileInfoDtoS);
     }
 
     /**
@@ -122,8 +122,8 @@ public class NettyUtil {
      */
     public static Map<String, Object> readGetParams(HttpRequest request) {
         if (request.method() == HttpMethod.GET) {
-            Map<String, Object> paramMap = new HashMap<>();
             QueryStringDecoder decoder = new QueryStringDecoder(request.uri());
+            Map<String, Object> paramMap = new HashMap<>(decoder.parameters().size());
             decoder.parameters().entrySet().forEach(entry -> {
                 paramMap.put(entry.getKey(), entry.getValue().get(0));
             });
@@ -142,8 +142,8 @@ public class NettyUtil {
         //存放文件对象
         List<FileUpload> fileUploads = new ArrayList<>();
         //通过迭代器获取HTTP的内容
-        List<InterfaceHttpData> InterfaceHttpDataList = decoder.getBodyHttpDatas();
-        for (InterfaceHttpData data : InterfaceHttpDataList) {
+        List<InterfaceHttpData> interfaceHttpDataList = decoder.getBodyHttpDatas();
+        for (InterfaceHttpData data : interfaceHttpDataList) {
             //如果数据类型为文件类型，则保存到fileUploads对象中 如果参数名不对则抛出异常
             if (data != null && InterfaceHttpData.HttpDataType.FileUpload.equals(data.getHttpDataType()) && data.getName().equals(FILE_PARAM_NAME)) {
                 FileUpload fileUpload = (FileUpload) data;
@@ -169,8 +169,8 @@ public class NettyUtil {
         //存放参数对象
         JSONObject body = new JSONObject();
         //通过迭代器获取HTTP的内容
-        List<InterfaceHttpData> InterfaceHttpDataList = decoder.getBodyHttpDatas();
-        for (InterfaceHttpData data : InterfaceHttpDataList) {
+        List<InterfaceHttpData> interfaceHttpDataList = decoder.getBodyHttpDatas();
+        for (InterfaceHttpData data : interfaceHttpDataList) {
             //如果数据类型为参数类型，则保存到body对象中
             if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
                 Attribute attribute = (Attribute) data;

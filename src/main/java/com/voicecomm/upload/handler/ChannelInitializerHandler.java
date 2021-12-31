@@ -19,16 +19,18 @@ import org.springframework.cache.annotation.Cacheable;
  */
 @Slf4j
 public class ChannelInitializerHandler extends ChannelInitializer<SocketChannel> {
-    private FileUtil fdfsUtil;
+    private final FileUtil fdfsUtil;
 
-    public ChannelInitializerHandler(FileUtil fastDFSUtil) {
-        this.fdfsUtil = fastDFSUtil;
+    public ChannelInitializerHandler(FileUtil fastDfsUtil) {
+        this.fdfsUtil = fastDfsUtil;
     }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         ch.pipeline()
-                .addLast(new HttpServerCodec())  //http请求编解码器
-                .addLast(new FileUploadHandler(fdfsUtil)); //文件上传处理的handler
+                //http请求编解码器
+                .addLast(new HttpServerCodec())
+                //文件上传处理的handler
+                .addLast(new FileUploadHandler(fdfsUtil));
     }
 }

@@ -6,7 +6,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
- * @apiNote: JDK 8  新日期类 格式化与字符串转换 工具类
+ * @ClassName FastDFSUtil
+ * @Author yulin.li
+ * @Date 2021/12/21 17:19
+ * @Description DateUtil
  */
 public class DateUtil {
 

@@ -14,10 +14,14 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 public class NettyProperties {
-    // netty服务端口
+    /**
+     * netty服务端口
+     */
     private Integer port;
 
-    // netty服务注册名称
+    /**
+     * netty服务注册名称
+     */
     private String serverName;
 
 }

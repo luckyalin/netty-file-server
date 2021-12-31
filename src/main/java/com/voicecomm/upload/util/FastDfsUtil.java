@@ -1,12 +1,9 @@
 package com.voicecomm.upload.util;
 
 import com.github.tobato.fastdfs.domain.StorePath;
-import com.github.tobato.fastdfs.service.DefaultFastFileStorageClient;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.voicecomm.upload.config.FileProperties;
-import com.voicecomm.upload.config.NettyProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -19,12 +16,15 @@ import java.io.InputStream;
  */
 @Component
 @Slf4j
-public class FastDFSUtil {
-    @Autowired
-    private FastFileStorageClient storageClient;
+public class FastDfsUtil {
+    private final FastFileStorageClient storageClient;
 
-    @Autowired
-    private FileProperties fileProperties;
+    private final FileProperties fileProperties;
+
+    public FastDfsUtil(FastFileStorageClient storageClient, FileProperties fileProperties) {
+        this.storageClient = storageClient;
+        this.fileProperties = fileProperties;
+    }
 
     /**
      * fastdfs文件上传方法

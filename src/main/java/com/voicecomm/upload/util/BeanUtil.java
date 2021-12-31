@@ -6,7 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * @ClassName ChannelInitializerHandler
+ * @Author yulin.li
+ * @Date 2021/12/21 15:02
+ * @Description BeanUtil
+ */
 @Slf4j
 public class BeanUtil {
 
